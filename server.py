@@ -16,16 +16,27 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class FasttextServer(pb2_grpc.FasttextServicer):
 
-    def __init__(self):
-        self.proc = Popen(["fasttext", 'print-word-vectors', 'models/skipgram.bin'],
-                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self.get_embeddings('test') # pre loading
+    def __init__(self, model_filepath):
+        self._model_filepath = model_filepath
+        self._load(self._model_filepath)
 
     def WordEmbedding(self, request, context): 
-        embeddings, words = self.get_embeddings(request.sentence)
+        logging.debug('word_embedding request: %s', request.sentence)
+        embeddings, words = self._get_embeddings(request.sentence)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
 
-    def get_embeddings(self, sentence):
+    def ReloadRequest(self, request, context): 
+        if request.filepath:
+            self._model_filepath = request.filepath
+        self._load(self._model_filepath)
+        return pb2.Response(message='Reloaded')
+
+    def _load(self, model_filepath):
+        self.proc = Popen(["fasttext", 'print-word-vectors', model_filepath],
+                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
+        self._get_embeddings('test') # pre loading
+
+    def _get_embeddings(self, sentence):
         sentence = sentence.strip()
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
@@ -50,9 +61,10 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
 
 @click.command()
+@click.option('--model_filepath', default='models/skipgram.bin', help='log filepath')
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(log, debug):
+def serve(model_filepath, log, debug):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -65,7 +77,7 @@ def serve(log, debug):
     root.addHandler(handler)
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    fasttext_server = FasttextServer()
+    fasttext_server = FasttextServer(model_filepath)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
     server.start()

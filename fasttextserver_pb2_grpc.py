@@ -15,7 +15,7 @@ class FasttextStub(object):
       channel: A grpc.Channel.
     """
     self.WordEmbedding = channel.unary_unary(
-        '/fasttextserver.Fasttext/WordEmbedding',
+        '/nlp.Fasttext/WordEmbedding',
         request_serializer=fasttextserver__pb2.WordEmbeddingRequest.SerializeToString,
         response_deserializer=fasttextserver__pb2.WordEmbeddingResponse.FromString,
         )
@@ -42,5 +42,5 @@ def add_FasttextServicer_to_server(servicer, server):
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(
-      'fasttextserver.Fasttext', rpc_method_handlers)
+      'nlp.Fasttext', rpc_method_handlers)
   server.add_generic_rpc_handlers((generic_handler,))

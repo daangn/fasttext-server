@@ -17,9 +17,9 @@ _sym_db = _symbol_database.Default()
 
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='fasttextserver.proto',
-  package='fasttextserver',
+  package='nlp',
   syntax='proto3',
-  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x0e\x66\x61sttextserver\"(\n\x14WordEmbeddingRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t2j\n\x08\x46\x61sttext\x12^\n\rWordEmbedding\x12$.fasttextserver.WordEmbeddingRequest\x1a%.fasttextserver.WordEmbeddingResponse\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"(\n\x14WordEmbeddingRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t2T\n\x08\x46\x61sttext\x12H\n\rWordEmbedding\x12\x19.nlp.WordEmbeddingRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x62\x06proto3')
 )
 
 
@@ -27,13 +27,13 @@ DESCRIPTOR = _descriptor.FileDescriptor(
 
 _WORDEMBEDDINGREQUEST = _descriptor.Descriptor(
   name='WordEmbeddingRequest',
-  full_name='fasttextserver.WordEmbeddingRequest',
+  full_name='nlp.WordEmbeddingRequest',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='sentence', full_name='fasttextserver.WordEmbeddingRequest.sentence', index=0,
+      name='sentence', full_name='nlp.WordEmbeddingRequest.sentence', index=0,
       number=1, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -51,27 +51,27 @@ _WORDEMBEDDINGREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=40,
-  serialized_end=80,
+  serialized_start=29,
+  serialized_end=69,
 )
 
 
 _WORDEMBEDDINGRESPONSE = _descriptor.Descriptor(
   name='WordEmbeddingResponse',
-  full_name='fasttextserver.WordEmbeddingResponse',
+  full_name='nlp.WordEmbeddingResponse',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='embeddings', full_name='fasttextserver.WordEmbeddingResponse.embeddings', index=0,
+      name='embeddings', full_name='nlp.WordEmbeddingResponse.embeddings', index=0,
       number=1, type=2, cpp_type=6, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='words', full_name='fasttextserver.WordEmbeddingResponse.words', index=1,
+      name='words', full_name='nlp.WordEmbeddingResponse.words', index=1,
       number=2, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -89,8 +89,8 @@ _WORDEMBEDDINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=82,
-  serialized_end=140,
+  serialized_start=71,
+  serialized_end=129,
 )
 
 DESCRIPTOR.message_types_by_name['WordEmbeddingRequest'] = _WORDEMBEDDINGREQUEST
@@ -100,14 +100,14 @@ _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 WordEmbeddingRequest = _reflection.GeneratedProtocolMessageType('WordEmbeddingRequest', (_message.Message,), dict(
   DESCRIPTOR = _WORDEMBEDDINGREQUEST,
   __module__ = 'fasttextserver_pb2'
-  # @@protoc_insertion_point(class_scope:fasttextserver.WordEmbeddingRequest)
+  # @@protoc_insertion_point(class_scope:nlp.WordEmbeddingRequest)
   ))
 _sym_db.RegisterMessage(WordEmbeddingRequest)
 
 WordEmbeddingResponse = _reflection.GeneratedProtocolMessageType('WordEmbeddingResponse', (_message.Message,), dict(
   DESCRIPTOR = _WORDEMBEDDINGRESPONSE,
   __module__ = 'fasttextserver_pb2'
-  # @@protoc_insertion_point(class_scope:fasttextserver.WordEmbeddingResponse)
+  # @@protoc_insertion_point(class_scope:nlp.WordEmbeddingResponse)
   ))
 _sym_db.RegisterMessage(WordEmbeddingResponse)
 
@@ -115,16 +115,16 @@ _sym_db.RegisterMessage(WordEmbeddingResponse)
 
 _FASTTEXT = _descriptor.ServiceDescriptor(
   name='Fasttext',
-  full_name='fasttextserver.Fasttext',
+  full_name='nlp.Fasttext',
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=142,
-  serialized_end=248,
+  serialized_start=131,
+  serialized_end=215,
   methods=[
   _descriptor.MethodDescriptor(
     name='WordEmbedding',
-    full_name='fasttextserver.Fasttext.WordEmbedding',
+    full_name='nlp.Fasttext.WordEmbedding',
     index=0,
     containing_service=None,
     input_type=_WORDEMBEDDINGREQUEST,
@@ -157,7 +157,7 @@ try:
         channel: A grpc.Channel.
       """
       self.WordEmbedding = channel.unary_unary(
-          '/fasttextserver.Fasttext/WordEmbedding',
+          '/nlp.Fasttext/WordEmbedding',
           request_serializer=WordEmbeddingRequest.SerializeToString,
           response_deserializer=WordEmbeddingResponse.FromString,
           )
@@ -184,7 +184,7 @@ try:
         ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-        'fasttextserver.Fasttext', rpc_method_handlers)
+        'nlp.Fasttext', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -224,13 +224,13 @@ try:
     file not marked beta) for all further purposes. This function was
     generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
     request_deserializers = {
-      ('fasttextserver.Fasttext', 'WordEmbedding'): WordEmbeddingRequest.FromString,
+      ('nlp.Fasttext', 'WordEmbedding'): WordEmbeddingRequest.FromString,
     }
     response_serializers = {
-      ('fasttextserver.Fasttext', 'WordEmbedding'): WordEmbeddingResponse.SerializeToString,
+      ('nlp.Fasttext', 'WordEmbedding'): WordEmbeddingResponse.SerializeToString,
     }
     method_implementations = {
-      ('fasttextserver.Fasttext', 'WordEmbedding'): face_utilities.unary_unary_inline(servicer.WordEmbedding),
+      ('nlp.Fasttext', 'WordEmbedding'): face_utilities.unary_unary_inline(servicer.WordEmbedding),
     }
     server_options = beta_implementations.server_options(request_deserializers=request_deserializers, response_serializers=response_serializers, thread_pool=pool, thread_pool_size=pool_size, default_timeout=default_timeout, maximum_timeout=maximum_timeout)
     return beta_implementations.server(method_implementations, options=server_options)
@@ -243,16 +243,16 @@ try:
     file not marked beta) for all further purposes. This function was
     generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
     request_serializers = {
-      ('fasttextserver.Fasttext', 'WordEmbedding'): WordEmbeddingRequest.SerializeToString,
+      ('nlp.Fasttext', 'WordEmbedding'): WordEmbeddingRequest.SerializeToString,
     }
     response_deserializers = {
-      ('fasttextserver.Fasttext', 'WordEmbedding'): WordEmbeddingResponse.FromString,
+      ('nlp.Fasttext', 'WordEmbedding'): WordEmbeddingResponse.FromString,
     }
     cardinalities = {
       'WordEmbedding': cardinality.Cardinality.UNARY_UNARY,
     }
     stub_options = beta_implementations.stub_options(host=host, metadata_transformer=metadata_transformer, request_serializers=request_serializers, response_deserializers=response_deserializers, thread_pool=pool, thread_pool_size=pool_size)
-    return beta_implementations.dynamic_stub(channel, 'fasttextserver.Fasttext', cardinalities, options=stub_options)
+    return beta_implementations.dynamic_stub(channel, 'nlp.Fasttext', cardinalities, options=stub_options)
 except ImportError:
   pass
 # @@protoc_insertion_point(module_scope)

@@ -1,20 +1,25 @@
 syntax = "proto3";
 
-package fasttextserver;
+package nlp;
 
-// The greeting service definition.
 service Fasttext {
-  // Sends a greeting
   rpc WordEmbedding (WordEmbeddingRequest) returns (WordEmbeddingResponse) {}
+  rpc Reload (ReloadRequest) returns (Response) {}
 }
 
-// The request message containing the user's name.
 message WordEmbeddingRequest {
   string sentence = 1;
 }
 
-// The response message containing the greetings
 message WordEmbeddingResponse {
   repeated float embeddings = 1;
   repeated string words = 2;
+}
+
+message ReloadRequest {
+  string filepath = 1;
+}
+
+message Response {
+  string message = 1;
 }
