@@ -2,6 +2,10 @@
 source config.sh
 echo "container_name: $CONTAINER_NAME"
 echo "port: $PORT"
+
+mkdir -p models
+mkdir -p log
+
 docker run -d --rm --name $CONTAINER_NAME -it -p $PORT:50051 -u `id -u $USER` \
   -v "$(pwd)/models":/app/models \
   -v "$(pwd)/log":/app/log \

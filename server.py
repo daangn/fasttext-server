@@ -32,9 +32,12 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         return pb2.Response(message='Reloaded')
 
     def _load(self, model_filepath):
+        pre_proc = self.proc
         self.proc = Popen(["fasttext", 'print-word-vectors', model_filepath],
                 stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
         self._get_embeddings('test') # pre loading
+        if pre_proc:
+            pre_proc.kill()
 
     def _get_embeddings(self, sentence):
         sentence = sentence.strip()
