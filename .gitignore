@@ -1,0 +1,5 @@
+*.pyc
+*.swp
+models
+log
+config.sh

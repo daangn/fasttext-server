@@ -1,0 +1,3 @@
+#!/bin/bash
+$(dirname "$0")/stop
+$(dirname "$0")/run

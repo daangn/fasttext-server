@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package fasttextserver;
+
+// The greeting service definition.
+service Fasttext {
+  // Sends a greeting
+  rpc WordEmbedding (WordEmbeddingRequest) returns (WordEmbeddingResponse) {}
+}
+
+// The request message containing the user's name.
+message WordEmbeddingRequest {
+  string sentence = 1;
+}
+
+// The response message containing the greetings
+message WordEmbeddingResponse {
+  repeated float embeddings = 1;
+  repeated string words = 2;
+}

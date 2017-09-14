@@ -1,0 +1,8 @@
+#!/bin/bash
+source config.sh
+echo "container_name: $CONTAINER_NAME"
+echo "port: $PORT"
+docker run -d --rm --name $CONTAINER_NAME -it -p $PORT:50051 -u `id -u $USER` \
+  -v "$(pwd)/models":/app/models \
+  -v "$(pwd)/log":/app/log \
+  daangn/fasttext-server server.py --log="log/${CONTAINER_NAME}.log" --debug

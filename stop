@@ -1,0 +1,4 @@
+#!/bin/bash
+source config.sh
+docker stop $CONTAINER_NAME
+#docker rm $CONTAINER_NAME

@@ -1,0 +1,5 @@
+#!/bin/bash
+# rename this to config.sh
+OUTPUT_PATH="./lib"
+CONTAINER_NAME="fasttext-server"
+PORT=50051
