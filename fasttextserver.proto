@@ -3,11 +3,13 @@ syntax = "proto3";
 package nlp;
 
 service Fasttext {
-  rpc WordEmbedding (WordEmbeddingRequest) returns (WordEmbeddingResponse) {}
+  rpc WordEmbedding (SentenceRequest) returns (WordEmbeddingResponse) {}
+  rpc SentenceEmbedding (SentenceRequest) returns (SentenceEmbeddingResponse) {}
+  rpc Predict (SentenceRequest) returns (PredictResponse) {}
   rpc Reload (ReloadRequest) returns (Response) {}
 }
 
-message WordEmbeddingRequest {
+message SentenceRequest {
   string sentence = 1;
 }
 
@@ -16,10 +18,20 @@ message WordEmbeddingResponse {
   repeated string words = 2;
 }
 
+message SentenceEmbeddingResponse {
+  repeated float embeddings = 1;
+}
+
 message ReloadRequest {
-  string filepath = 1;
+  string model_type = 1;
+  string filepath = 2;
 }
 
 message Response {
   string message = 1;
+}
+
+message PredictResponse {
+  repeated string labels = 1;
+  repeated float probs = 2;
 }

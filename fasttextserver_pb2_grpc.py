@@ -5,8 +5,8 @@ import fasttextserver_pb2 as fasttextserver__pb2
 
 
 class FasttextStub(object):
-  """The greeting service definition.
-  """
+  # missing associated documentation comment in .proto file
+  pass
 
   def __init__(self, channel):
     """Constructor.
@@ -16,18 +16,54 @@ class FasttextStub(object):
     """
     self.WordEmbedding = channel.unary_unary(
         '/nlp.Fasttext/WordEmbedding',
-        request_serializer=fasttextserver__pb2.WordEmbeddingRequest.SerializeToString,
+        request_serializer=fasttextserver__pb2.SentenceRequest.SerializeToString,
         response_deserializer=fasttextserver__pb2.WordEmbeddingResponse.FromString,
+        )
+    self.SentenceEmbedding = channel.unary_unary(
+        '/nlp.Fasttext/SentenceEmbedding',
+        request_serializer=fasttextserver__pb2.SentenceRequest.SerializeToString,
+        response_deserializer=fasttextserver__pb2.SentenceEmbeddingResponse.FromString,
+        )
+    self.Predict = channel.unary_unary(
+        '/nlp.Fasttext/Predict',
+        request_serializer=fasttextserver__pb2.SentenceRequest.SerializeToString,
+        response_deserializer=fasttextserver__pb2.PredictResponse.FromString,
+        )
+    self.Reload = channel.unary_unary(
+        '/nlp.Fasttext/Reload',
+        request_serializer=fasttextserver__pb2.ReloadRequest.SerializeToString,
+        response_deserializer=fasttextserver__pb2.Response.FromString,
         )
 
 
 class FasttextServicer(object):
-  """The greeting service definition.
-  """
+  # missing associated documentation comment in .proto file
+  pass
 
   def WordEmbedding(self, request, context):
-    """Sends a greeting
-    """
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def SentenceEmbedding(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def Predict(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def Reload(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
     context.set_details('Method not implemented!')
     raise NotImplementedError('Method not implemented!')
@@ -37,8 +73,23 @@ def add_FasttextServicer_to_server(servicer, server):
   rpc_method_handlers = {
       'WordEmbedding': grpc.unary_unary_rpc_method_handler(
           servicer.WordEmbedding,
-          request_deserializer=fasttextserver__pb2.WordEmbeddingRequest.FromString,
+          request_deserializer=fasttextserver__pb2.SentenceRequest.FromString,
           response_serializer=fasttextserver__pb2.WordEmbeddingResponse.SerializeToString,
+      ),
+      'SentenceEmbedding': grpc.unary_unary_rpc_method_handler(
+          servicer.SentenceEmbedding,
+          request_deserializer=fasttextserver__pb2.SentenceRequest.FromString,
+          response_serializer=fasttextserver__pb2.SentenceEmbeddingResponse.SerializeToString,
+      ),
+      'Predict': grpc.unary_unary_rpc_method_handler(
+          servicer.Predict,
+          request_deserializer=fasttextserver__pb2.SentenceRequest.FromString,
+          response_serializer=fasttextserver__pb2.PredictResponse.SerializeToString,
+      ),
+      'Reload': grpc.unary_unary_rpc_method_handler(
+          servicer.Reload,
+          request_deserializer=fasttextserver__pb2.ReloadRequest.FromString,
+          response_serializer=fasttextserver__pb2.Response.SerializeToString,
       ),
   }
   generic_handler = grpc.method_handlers_generic_handler(

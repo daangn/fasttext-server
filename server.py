@@ -16,28 +16,97 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class FasttextServer(pb2_grpc.FasttextServicer):
 
-    def __init__(self, model_filepath):
-        self._model_filepath = model_filepath
-        self._load(self._model_filepath)
+    def __init__(self, word_model_filepath=None, sentence_model_filepath=None, predict_model_filepath=None):
+        self.proc = None
+        self.proc_sentence = None
+        self.proc_predict = None
+        self._word_model_filepath = word_model_filepath
+        self._sentence_model_filepath = sentence_model_filepath
+        self._predict_model_filepath = predict_model_filepath
+        if predict_model_filepath:
+            self._load_predict_model(self._predict_model_filepath)
+            logging.debug('predict model loaded')
+        if sentence_model_filepath:
+            self._load_sentence_model(self._sentence_model_filepath)
+            logging.debug('sentence model loaded')
+        if word_model_filepath:
+            self._load_word_model(word_model_filepath)
+            logging.debug('word model loaded')
 
     def WordEmbedding(self, request, context): 
         logging.debug('word_embedding request: %s', request.sentence)
         embeddings, words = self._get_embeddings(request.sentence)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
 
-    def ReloadRequest(self, request, context): 
-        if request.filepath:
-            self._model_filepath = request.filepath
-        self._load(self._model_filepath)
-        return pb2.Response(message='Reloaded')
+    def SentenceEmbedding(self, request, context):
+        logging.debug('sentence_embedding request: %s', request.sentence)
+        embeddings = self._get_sentence_embeddings(request.sentence)
+        return pb2.SentenceEmbeddingResponse(embeddings=embeddings)
 
-    def _load(self, model_filepath):
+    def Predict(self, request, context):
+        logging.debug('predict request: %s', request.sentence)
+        labels, probs = self._predict(request.sentence)
+        return pb2.PredictResponse(labels=labels, probs=probs)
+
+    def Reload(self, request, context): 
+        key = '_%s_model_filepath' % request.model_type
+        if request.filepath:
+            setattr(self, key, request.filepath)
+        model_filepath = getattr(self, key, None)
+        load_model = getattr(self, '_load_%s_model' % request.model_type)
+        load_model(model_filepath)
+        return pb2.Response(message='Reloaded: %s, %s' % (request.model_type, request.filepath))
+
+    def _load_word_model(self, model_filepath):
         pre_proc = self.proc
         self.proc = Popen(["fasttext", 'print-word-vectors', model_filepath],
                 stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
         self._get_embeddings('test') # pre loading
         if pre_proc:
             pre_proc.kill()
+
+    def _load_sentence_model(self, model_filepath):
+        logging.debug('sentence model filepath: %s', model_filepath)
+        pre_proc = self.proc_sentence
+        self.proc_sentence = Popen(["fasttext", 'print-sentence-vectors', model_filepath],
+                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
+        self._get_sentence_embeddings('test') # pre loading
+        if pre_proc:
+            pre_proc.kill()
+
+    def _load_predict_model(self, model_filepath):
+        logging.debug('predict model filepath: %s', model_filepath)
+        pre_proc = self.proc_predict
+        self.proc_predict = Popen(["fasttext", 'predict-prob', model_filepath, '-', '1000'],
+                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
+        self._predict('test') # pre loading
+        if pre_proc:
+            pre_proc.kill()
+
+    def _predict(self, sentence):
+        sentence = sentence.strip()
+        if sentence.find('\n') > -1:
+            raise ValueError('sentence must not contain new line(\\n)')
+
+        proc = self.proc_predict
+        proc.stdin.write("%s\n" % sentence)
+        line = proc.stdout.readline()
+        tokens = line.rstrip().split()
+        labels = [x[9:] for x in tokens[::2]]
+        probs = [float(x) for x in tokens[1::2]]
+        return labels, probs
+
+    def _get_sentence_embeddings(self, sentence):
+        sentence = sentence.strip()
+        if sentence.find('\n') > -1:
+            raise ValueError('sentence must not contain new line(\\n)')
+
+        proc = self.proc_sentence
+        proc.stdin.write("%s\n" % sentence)
+        line = proc.stdout.readline()
+        tokens = line.rstrip().split()
+        embedding = [float(x) for x in tokens]
+        return embedding
 
     def _get_embeddings(self, sentence):
         sentence = sentence.strip()
@@ -60,14 +129,21 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         return embeddings, words
 
     def stop(self):
-        self.proc.kill()
+        if self.proc:
+            self.proc.kill()
+        if self.proc_sentence:
+            self.proc_sentence.kill()
+        if self.proc_predict:
+            self.proc_predict.kill()
 
 
 @click.command()
-@click.option('--model_filepath', default='models/skipgram.bin', help='log filepath')
+@click.option('--word_model', default=None, help='word model filepath')
+@click.option('--sentence_model', default='models/sentence.bin', help='sentence model filepath')
+@click.option('--predict_model', default='models/sentence.bin', help='sentence model filepath')
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(model_filepath, log, debug):
+def serve(word_model, sentence_model, predict_model, log, debug):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -79,8 +155,11 @@ def serve(model_filepath, log, debug):
     root.setLevel(level)
     root.addHandler(handler)
 
+    logging.info('server loading...')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    fasttext_server = FasttextServer(model_filepath)
+    fasttext_server = FasttextServer(word_model_filepath=word_model,
+            sentence_model_filepath=sentence_model,
+            predict_model_filepath=predict_model)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
     server.start()
