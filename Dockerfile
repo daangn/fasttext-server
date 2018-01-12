@@ -20,4 +20,7 @@ WORKDIR /app
 ENTRYPOINT ["python3"]
 CMD ["server.py"]
 
+HEALTHCHECK --interval=3s --timeout=2s \
+  CMD ls /tmp/status || exit 1
+
 COPY *.py /app/

@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build $(dirname "$0") -t daangn/fasttext-server
+docker build $(dirname "$0") -t daangn/fasttext-server $@
