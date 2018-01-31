@@ -11,7 +11,7 @@ def run():
   stub = pb2_grpc.FasttextStub(channel)
   sentences = ['adf', '', 'xcvv w3r']
 
-  request = pb2.ReloadRequest(model_type='word', filepath='models/skipgram.bin')
+  request = pb2.ReloadRequest(model_type='word')
   response = stub.Reload(request)
   print("response: %s" % response.message)
 

@@ -1,3 +1,5 @@
+from glob import glob
+from os.path import basename
 from concurrent import futures
 import time
 import logging
@@ -16,79 +18,94 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
 class FasttextServer(pb2_grpc.FasttextServicer):
 
-    def __init__(self, word_model_filepath=None, sentence_model_filepath=None, predict_model_filepath=None):
-        self.proc = None
-        self.proc_sentence = None
-        self.proc_predict = None
-        self._word_model_filepath = word_model_filepath
-        self._sentence_model_filepath = sentence_model_filepath
-        self._predict_model_filepath = predict_model_filepath
-        if predict_model_filepath:
-            self._load_predict_model(self._predict_model_filepath)
-            logging.debug('predict model loaded')
-        if sentence_model_filepath:
-            self._load_sentence_model(self._sentence_model_filepath)
-            logging.debug('sentence model loaded')
-        if word_model_filepath:
-            self._load_word_model(word_model_filepath)
-            logging.debug('word model loaded')
+    TYPE_WORD = 'word'
+    TYPE_SENTENCE = 'sentence'
+    TYPE_PREDICT = 'predict'
+
+    def __init__(self, model_path, default_version='default'):
+        self._model_path = model_path
+        self._default_version = {self.TYPE_WORD: default_version,
+                self.TYPE_SENTENCE: default_version, self.TYPE_PREDICT: default_version}
+        self._proc = {self.TYPE_WORD: {}, self.TYPE_SENTENCE: {}, self.TYPE_PREDICT: {}}
+
+        for model_type in [self.TYPE_WORD, self.TYPE_SENTENCE, self.TYPE_PREDICT]:
+            for filepath in glob('%s/%s/*.bin' % (self._model_path, model_type)):
+                version = basename(filepath)[:-4]
+                load_model = getattr(self, '_load_%s_model' % model_type)
+                load_model(filepath, version)
+                logging.debug('%s model loaded, version: %s', model_type, version)
 
     def WordEmbedding(self, request, context): 
-        logging.debug('word_embedding request: %s', request.sentence)
-        embeddings, words = self._get_embeddings(request.sentence)
+        logging.debug('word_embedding request: %s, %s', request.sentence, request.version)
+        embeddings, words = self._get_embeddings(request.sentence, request.version)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
 
     def SentenceEmbedding(self, request, context):
-        logging.debug('sentence_embedding request: %s', request.sentence)
-        embeddings = self._get_sentence_embeddings(request.sentence)
+        logging.debug('sentence_embedding request: %s, %s', request.sentence, request.version)
+        embeddings = self._get_sentence_embeddings(request.sentence, request.version)
         return pb2.SentenceEmbeddingResponse(embeddings=embeddings)
 
     def Predict(self, request, context):
-        logging.debug('predict request: %s', request.sentence)
-        labels, probs = self._predict(request.sentence)
+        logging.debug('predict request: %s, %s', request.sentence, request.version)
+        labels, probs = self._predict(request.sentence, request.version)
         return pb2.PredictResponse(labels=labels, probs=probs)
 
     def Reload(self, request, context): 
-        key = '_%s_model_filepath' % request.model_type
-        if request.filepath:
-            setattr(self, key, request.filepath)
-        model_filepath = getattr(self, key, None)
+        logging.debug('reload request: %s, %s', \
+                request.model_type, request.version)
+        model_type = request.model_type
+        version = request.version or self._default_version[model_type]
+        model_filepath = '%s/%s/%s.bin' % (self._model_path, model_type, version)
         load_model = getattr(self, '_load_%s_model' % request.model_type)
-        load_model(model_filepath)
-        return pb2.Response(message='Reloaded: %s, %s' % (request.model_type, request.filepath))
+        load_model(model_filepath, request.version)
+        return pb2.Response(message='Reloaded: %s, %s' % \
+                (request.model_type, request.version))
 
-    def _load_word_model(self, model_filepath):
-        pre_proc = self.proc
-        self.proc = Popen(["fasttext", 'print-word-vectors', model_filepath],
-                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self._get_embeddings('test') # pre loading
+    def stop(self):
+        for model_type in self._proc:
+            map(lambda x: x.kill(), self._proc[model_type].values())
+
+    def _get_process(self, model_type, version=None):
+        version = version or self._default_version[model_type]
+        if version not in self._proc[model_type]:
+            return None
+        return self._proc[model_type][version]
+
+    def _set_process(self, proc, model_type, version=None):
+        version = version or self._default_version[model_type]
+        pre_proc = self._get_process(model_type, version)
+        self._proc[model_type][version] = proc
         if pre_proc:
             pre_proc.kill()
 
-    def _load_sentence_model(self, model_filepath):
+    def _load_word_model(self, model_filepath, version=None):
+        proc = Popen(["fasttext", 'print-word-vectors', model_filepath],
+                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
+        self._set_process(proc, self.TYPE_WORD, version)
+        self._get_embeddings('test', version) # pre loading
+
+    def _load_sentence_model(self, model_filepath, version=None):
         logging.debug('sentence model filepath: %s', model_filepath)
-        pre_proc = self.proc_sentence
-        self.proc_sentence = Popen(["fasttext", 'print-sentence-vectors', model_filepath],
+        proc = Popen(["fasttext", 'print-sentence-vectors', model_filepath],
                 stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self._get_sentence_embeddings('test') # pre loading
-        if pre_proc:
-            pre_proc.kill()
+        self._set_process(proc, self.TYPE_SENTENCE, version)
+        self._get_sentence_embeddings('test', version) # pre loading
 
-    def _load_predict_model(self, model_filepath):
+    def _load_predict_model(self, model_filepath, version=None):
         logging.debug('predict model filepath: %s', model_filepath)
-        pre_proc = self.proc_predict
-        self.proc_predict = Popen(["fasttext", 'predict-prob', model_filepath, '-', '1000'],
+        proc = Popen(["fasttext", 'predict-prob', model_filepath, '-', '1000'],
                 stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self._predict('test') # pre loading
-        if pre_proc:
-            pre_proc.kill()
+        self._set_process(proc, self.TYPE_PREDICT, version)
+        self._predict('test', version) # pre loading
 
-    def _predict(self, sentence):
+    def _predict(self, sentence, version=None):
         sentence = sentence.strip()
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
 
-        proc = self.proc_predict
+        proc = self._get_process(self.TYPE_PREDICT, version)
+        if not proc:
+            raise Exception('no process for version %s, type %s' % (version, self.TYPE_PREDICT))
         proc.stdin.write("%s\n" % sentence)
         line = proc.stdout.readline()
         tokens = line.rstrip().split()
@@ -96,30 +113,35 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         probs = [float(x) for x in tokens[1::2]]
         return labels, probs
 
-    def _get_sentence_embeddings(self, sentence):
+    def _get_sentence_embeddings(self, sentence, version=None):
         sentence = sentence.strip()
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
 
-        proc = self.proc_sentence
+        proc = self._get_process(self.TYPE_SENTENCE, version)
+        if not proc:
+            raise Exception('no process for version %s, type %s' % (version, self.TYPE_SENTENCE))
         proc.stdin.write("%s\n" % sentence)
         line = proc.stdout.readline()
         tokens = line.rstrip().split()
         embedding = [float(x) for x in tokens]
         return embedding
 
-    def _get_embeddings(self, sentence):
+    def _get_embeddings(self, sentence, version=None):
         sentence = sentence.strip()
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
         words = sentence.split()
         words_count = len(words)
 
-        self.proc.stdin.write("%s\n" % sentence)
+        proc = self._get_process(self.TYPE_WORD, version)
+        if not proc:
+            raise Exception('no process for version %s, type %s' % (version, self.TYPE_WORD))
+        proc.stdin.write("%s\n" % sentence)
         embeddings = []
         words = []
         for i in range(words_count):
-            line = self.proc.stdout.readline()
+            line = proc.stdout.readline()
             tokens = line.rstrip().split()
             if len(tokens) < 1:
                 continue
@@ -128,22 +150,12 @@ class FasttextServer(pb2_grpc.FasttextServicer):
             embeddings += embedding
         return embeddings, words
 
-    def stop(self):
-        if self.proc:
-            self.proc.kill()
-        if self.proc_sentence:
-            self.proc_sentence.kill()
-        if self.proc_predict:
-            self.proc_predict.kill()
-
 
 @click.command()
-@click.option('--word_model', default=None, help='word model filepath')
-@click.option('--sentence_model', default='models/sentence.bin', help='sentence model filepath')
-@click.option('--predict_model', default='models/sentence.bin', help='sentence model filepath')
+@click.option('--model_path', default='models', help='model path')
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(word_model, sentence_model, predict_model, log, debug):
+def serve(model_path, log, debug):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -157,9 +169,7 @@ def serve(word_model, sentence_model, predict_model, log, debug):
 
     logging.info('server loading...')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    fasttext_server = FasttextServer(word_model_filepath=word_model,
-            sentence_model_filepath=sentence_model,
-            predict_model_filepath=predict_model)
+    fasttext_server = FasttextServer(model_path=model_path)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
     server.start()

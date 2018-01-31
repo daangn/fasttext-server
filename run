@@ -10,6 +10,5 @@ docker run -d --name $CONTAINER_NAME -it -p $PORT:50051 -u `id -u $USER` \
   -v "$(pwd)/models":/app/models \
   -v "$(pwd)/log":/app/log \
   daangn/fasttext-server server.py --log="log/${CONTAINER_NAME}.log" \
-    --sentence_model models/sentence.bin \
-    --predict_model models/sentence.bin \
+    --model_path models \
     --debug

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='fasttextserver.proto',
   package='nlp',
   syntax='proto3',
-  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"#\n\x0fSentenceRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t\"/\n\x19SentenceEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\"5\n\rReloadRequest\x12\x12\n\nmodel_type\x18\x01 \x01(\t\x12\x10\n\x08\x66ilepath\x18\x02 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07message\x18\x01 \x01(\t\"0\n\x0fPredictResponse\x12\x0e\n\x06labels\x18\x01 \x03(\t\x12\r\n\x05probs\x18\x02 \x03(\x02\x32\x84\x02\n\x08\x46\x61sttext\x12\x43\n\rWordEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x12K\n\x11SentenceEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1e.nlp.SentenceEmbeddingResponse\"\x00\x12\x37\n\x07Predict\x12\x14.nlp.SentenceRequest\x1a\x14.nlp.PredictResponse\"\x00\x12-\n\x06Reload\x12\x12.nlp.ReloadRequest\x1a\r.nlp.Response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"4\n\x0fSentenceRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t\"/\n\x19SentenceEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\"4\n\rReloadRequest\x12\x12\n\nmodel_type\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07message\x18\x01 \x01(\t\"0\n\x0fPredictResponse\x12\x0e\n\x06labels\x18\x01 \x03(\t\x12\r\n\x05probs\x18\x02 \x03(\x02\x32\x84\x02\n\x08\x46\x61sttext\x12\x43\n\rWordEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x12K\n\x11SentenceEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1e.nlp.SentenceEmbeddingResponse\"\x00\x12\x37\n\x07Predict\x12\x14.nlp.SentenceRequest\x1a\x14.nlp.PredictResponse\"\x00\x12-\n\x06Reload\x12\x12.nlp.ReloadRequest\x1a\r.nlp.Response\"\x00\x62\x06proto3')
 )
 
 
@@ -39,6 +39,13 @@ _SENTENCEREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='nlp.SentenceRequest.version', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -52,7 +59,7 @@ _SENTENCEREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=29,
-  serialized_end=64,
+  serialized_end=81,
 )
 
 
@@ -89,8 +96,8 @@ _WORDEMBEDDINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=66,
-  serialized_end=124,
+  serialized_start=83,
+  serialized_end=141,
 )
 
 
@@ -120,8 +127,8 @@ _SENTENCEEMBEDDINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=126,
-  serialized_end=173,
+  serialized_start=143,
+  serialized_end=190,
 )
 
 
@@ -140,7 +147,7 @@ _RELOADREQUEST = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='filepath', full_name='nlp.ReloadRequest.filepath', index=1,
+      name='version', full_name='nlp.ReloadRequest.version', index=1,
       number=2, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -158,8 +165,8 @@ _RELOADREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=175,
-  serialized_end=228,
+  serialized_start=192,
+  serialized_end=244,
 )
 
 
@@ -189,8 +196,8 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=230,
-  serialized_end=257,
+  serialized_start=246,
+  serialized_end=273,
 )
 
 
@@ -227,8 +234,8 @@ _PREDICTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=259,
-  serialized_end=307,
+  serialized_start=275,
+  serialized_end=323,
 )
 
 DESCRIPTOR.message_types_by_name['SentenceRequest'] = _SENTENCEREQUEST
@@ -281,57 +288,6 @@ PredictResponse = _reflection.GeneratedProtocolMessageType('PredictResponse', (_
   ))
 _sym_db.RegisterMessage(PredictResponse)
 
-
-
-_FASTTEXT = _descriptor.ServiceDescriptor(
-  name='Fasttext',
-  full_name='nlp.Fasttext',
-  file=DESCRIPTOR,
-  index=0,
-  options=None,
-  serialized_start=310,
-  serialized_end=570,
-  methods=[
-  _descriptor.MethodDescriptor(
-    name='WordEmbedding',
-    full_name='nlp.Fasttext.WordEmbedding',
-    index=0,
-    containing_service=None,
-    input_type=_SENTENCEREQUEST,
-    output_type=_WORDEMBEDDINGRESPONSE,
-    options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='SentenceEmbedding',
-    full_name='nlp.Fasttext.SentenceEmbedding',
-    index=1,
-    containing_service=None,
-    input_type=_SENTENCEREQUEST,
-    output_type=_SENTENCEEMBEDDINGRESPONSE,
-    options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='Predict',
-    full_name='nlp.Fasttext.Predict',
-    index=2,
-    containing_service=None,
-    input_type=_SENTENCEREQUEST,
-    output_type=_PREDICTRESPONSE,
-    options=None,
-  ),
-  _descriptor.MethodDescriptor(
-    name='Reload',
-    full_name='nlp.Fasttext.Reload',
-    index=3,
-    containing_service=None,
-    input_type=_RELOADREQUEST,
-    output_type=_RESPONSE,
-    options=None,
-  ),
-])
-_sym_db.RegisterServiceDescriptor(_FASTTEXT)
-
-DESCRIPTOR.services_by_name['Fasttext'] = _FASTTEXT
 
 try:
   # THESE ELEMENTS WILL BE DEPRECATED.

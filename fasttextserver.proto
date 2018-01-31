@@ -11,6 +11,7 @@ service Fasttext {
 
 message SentenceRequest {
   string sentence = 1;
+  string version = 2;
 }
 
 message WordEmbeddingResponse {
@@ -24,7 +25,7 @@ message SentenceEmbeddingResponse {
 
 message ReloadRequest {
   string model_type = 1;
-  string filepath = 2;
+  string version = 2;
 }
 
 message Response {
