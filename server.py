@@ -5,10 +5,13 @@ import time
 import logging
 import sys
 import signal
+import threading
 from subprocess import Popen, PIPE
 
 import grpc
 import click
+import numpy as np
+import fastText
 
 import fasttextserver_pb2 as pb2
 import fasttextserver_pb2_grpc as pb2_grpc
@@ -21,6 +24,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
     TYPE_WORD = 'word'
     TYPE_SENTENCE = 'sentence'
     TYPE_PREDICT = 'predict'
+    LOCK = threading.Lock()
 
     def __init__(self, model_path, default_version='default'):
         self._model_path = model_path
@@ -37,7 +41,8 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
     def WordEmbedding(self, request, context): 
         logging.debug('word_embedding request: %s, %s', request.sentence, request.version)
-        embeddings, words = self._get_embeddings(request.sentence, request.version)
+        with self.LOCK:
+            embeddings, words = self._get_embeddings(request.sentence, request.version)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
 
     def SentenceEmbedding(self, request, context):
@@ -79,9 +84,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
             pre_proc.kill()
 
     def _load_word_model(self, model_filepath, version=None):
-        proc = Popen(["fasttext", 'print-word-vectors', model_filepath],
-                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self._set_process(proc, self.TYPE_WORD, version)
+        self._word_model = fastText.load_model(model_filepath)
         self._get_embeddings('test', version) # pre loading
 
     def _load_sentence_model(self, model_filepath, version=None):
@@ -132,22 +135,14 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
         words = sentence.split()
-        words_count = len(words)
-
-        proc = self._get_process(self.TYPE_WORD, version)
-        if not proc:
-            raise Exception('no process for version %s, type %s' % (version, self.TYPE_WORD))
-        proc.stdin.write("%s\n" % sentence)
         embeddings = []
-        words = []
-        for i in range(words_count):
-            line = proc.stdout.readline()
-            tokens = line.rstrip().split()
-            if len(tokens) < 1:
-                continue
-            words.append(tokens[0])
-            embedding = [float(x) for x in tokens[1:]]
-            embeddings += embedding
+
+        for word in words:
+            embedding = self._word_model.get_word_vector(word)
+            embeddings.append(embedding)
+        if embeddings:
+            embeddings = np.concatenate(tuple(embeddings)).tolist()
+
         return embeddings, words
 
 

@@ -14,6 +14,9 @@ RUN pip3 install click
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
+RUN apt-get update && apt-get install -y python3-dev cmake gcc
+RUN cd fastText && pip3 install .
+
 RUN mkdir -p /app
 WORKDIR /app
 
