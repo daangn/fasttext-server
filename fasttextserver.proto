@@ -13,11 +13,13 @@ service Fasttext {
 message SentenceRequest {
   string sentence = 1;
   string version = 2;
+  bool spacing = 3;
 }
 
 message MultiSentencesRequest {
   repeated string sentences = 1;
   string version = 2;
+  bool spacing = 3;
 }
 
 message WordEmbeddingResponse {

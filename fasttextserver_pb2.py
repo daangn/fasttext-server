@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='fasttextserver.proto',
   package='nlp',
   syntax='proto3',
-  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"4\n\x0fSentenceRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\";\n\x15MultiSentencesRequest\x12\x11\n\tsentences\x18\x01 \x03(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t\"H\n\x1bMultiWordEmbeddingsResponse\x12)\n\x05items\x18\x01 \x03(\x0b\x32\x1a.nlp.WordEmbeddingResponse\"/\n\x19SentenceEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\"4\n\rReloadRequest\x12\x12\n\nmodel_type\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07message\x18\x01 \x01(\t\"0\n\x0fPredictResponse\x12\x0e\n\x06labels\x18\x01 \x03(\t\x12\r\n\x05probs\x18\x02 \x03(\x02\x32\xdb\x02\n\x08\x46\x61sttext\x12\x43\n\rWordEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x12U\n\x13MultiWordEmbeddings\x12\x1a.nlp.MultiSentencesRequest\x1a .nlp.MultiWordEmbeddingsResponse\"\x00\x12K\n\x11SentenceEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1e.nlp.SentenceEmbeddingResponse\"\x00\x12\x37\n\x07Predict\x12\x14.nlp.SentenceRequest\x1a\x14.nlp.PredictResponse\"\x00\x12-\n\x06Reload\x12\x12.nlp.ReloadRequest\x1a\r.nlp.Response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"E\n\x0fSentenceRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\"L\n\x15MultiSentencesRequest\x12\x11\n\tsentences\x18\x01 \x03(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t\"H\n\x1bMultiWordEmbeddingsResponse\x12)\n\x05items\x18\x01 \x03(\x0b\x32\x1a.nlp.WordEmbeddingResponse\"/\n\x19SentenceEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\"4\n\rReloadRequest\x12\x12\n\nmodel_type\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07message\x18\x01 \x01(\t\"0\n\x0fPredictResponse\x12\x0e\n\x06labels\x18\x01 \x03(\t\x12\r\n\x05probs\x18\x02 \x03(\x02\x32\xdb\x02\n\x08\x46\x61sttext\x12\x43\n\rWordEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x12U\n\x13MultiWordEmbeddings\x12\x1a.nlp.MultiSentencesRequest\x1a .nlp.MultiWordEmbeddingsResponse\"\x00\x12K\n\x11SentenceEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1e.nlp.SentenceEmbeddingResponse\"\x00\x12\x37\n\x07Predict\x12\x14.nlp.SentenceRequest\x1a\x14.nlp.PredictResponse\"\x00\x12-\n\x06Reload\x12\x12.nlp.ReloadRequest\x1a\r.nlp.Response\"\x00\x62\x06proto3')
 )
 
 
@@ -46,6 +46,13 @@ _SENTENCEREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='spacing', full_name='nlp.SentenceRequest.spacing', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -59,7 +66,7 @@ _SENTENCEREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=29,
-  serialized_end=81,
+  serialized_end=98,
 )
 
 
@@ -84,6 +91,13 @@ _MULTISENTENCESREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='spacing', full_name='nlp.MultiSentencesRequest.spacing', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -96,8 +110,8 @@ _MULTISENTENCESREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=83,
-  serialized_end=142,
+  serialized_start=100,
+  serialized_end=176,
 )
 
 
@@ -134,8 +148,8 @@ _WORDEMBEDDINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=144,
-  serialized_end=202,
+  serialized_start=178,
+  serialized_end=236,
 )
 
 
@@ -165,8 +179,8 @@ _MULTIWORDEMBEDDINGSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=204,
-  serialized_end=276,
+  serialized_start=238,
+  serialized_end=310,
 )
 
 
@@ -196,8 +210,8 @@ _SENTENCEEMBEDDINGRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=278,
-  serialized_end=325,
+  serialized_start=312,
+  serialized_end=359,
 )
 
 
@@ -234,8 +248,8 @@ _RELOADREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=327,
-  serialized_end=379,
+  serialized_start=361,
+  serialized_end=413,
 )
 
 
@@ -265,8 +279,8 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=381,
-  serialized_end=408,
+  serialized_start=415,
+  serialized_end=442,
 )
 
 
@@ -303,8 +317,8 @@ _PREDICTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=410,
-  serialized_end=458,
+  serialized_start=444,
+  serialized_end=492,
 )
 
 _MULTIWORDEMBEDDINGSRESPONSE.fields_by_name['items'].message_type = _WORDEMBEDDINGRESPONSE

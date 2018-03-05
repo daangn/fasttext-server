@@ -5,7 +5,6 @@ import time
 import logging
 import sys
 import signal
-import threading
 from subprocess import Popen, PIPE
 
 import grpc
@@ -26,13 +25,13 @@ class FasttextServer(pb2_grpc.FasttextServicer):
     TYPE_WORD = 'word'
     TYPE_SENTENCE = 'sentence'
     TYPE_PREDICT = 'predict'
-    LOCK = threading.Lock()
 
     def __init__(self, model_path, spacing_model_path=None, default_version='default'):
         self._model_path = model_path
         self._default_version = {self.TYPE_WORD: default_version,
                 self.TYPE_SENTENCE: default_version, self.TYPE_PREDICT: default_version}
         self._proc = {self.TYPE_WORD: {}, self.TYPE_SENTENCE: {}, self.TYPE_PREDICT: {}}
+        self._pool = Pool(16)
 
         for model_type in [self.TYPE_WORD, self.TYPE_SENTENCE, self.TYPE_PREDICT]:
             for filepath in glob('%s/%s/*.bin' % (self._model_path, model_type)):
@@ -51,22 +50,21 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
     def WordEmbedding(self, request, context): 
         logging.debug('word_embedding request: %s, %s', request.sentence, request.version)
-        return self._word_embedding(request.sentence, request.version)
+        return self._word_embedding(request.sentence, request.version, request.spacing)
 
-    def _word_embedding(self, sentence, version):
-        if self._spacing_model:
+    def _word_embedding(self, sentence, version, spacing):
+        if spacing and self._spacing_model:
             sentence, _ = self._spacing_model.correct(sentence)
         embeddings, words = self._get_embeddings(sentence, version)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
 
     def MultiWordEmbeddings(self, request, context): 
-        logging.debug('multi_word_embedding request: %s sentences, %s', len(request.sentences), request.version)
+        logging.debug('multi_word_embedding request: %s sentences, %s, %s', len(request.sentences), request.version, request.spacing)
 
         def word_embedding(sentence):
-            return self._word_embedding(sentence, request.version)
+            return self._word_embedding(sentence, request.version, request.spacing)
 
-        p = Pool(16)
-        items = p.map(word_embedding, request.sentences)
+        items = self._pool.map(word_embedding, request.sentences)
         return pb2.MultiWordEmbeddingsResponse(items=items)
 
     def SentenceEmbedding(self, request, context):
