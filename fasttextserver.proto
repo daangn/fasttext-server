@@ -4,6 +4,7 @@ package nlp;
 
 service Fasttext {
   rpc WordEmbedding (SentenceRequest) returns (WordEmbeddingResponse) {}
+  rpc MultiWordEmbeddings (MultiSentencesRequest) returns (MultiWordEmbeddingsResponse) {}
   rpc SentenceEmbedding (SentenceRequest) returns (SentenceEmbeddingResponse) {}
   rpc Predict (SentenceRequest) returns (PredictResponse) {}
   rpc Reload (ReloadRequest) returns (Response) {}
@@ -14,9 +15,18 @@ message SentenceRequest {
   string version = 2;
 }
 
+message MultiSentencesRequest {
+  repeated string sentences = 1;
+  string version = 2;
+}
+
 message WordEmbeddingResponse {
   repeated float embeddings = 1;
   repeated string words = 2;
+}
+
+message MultiWordEmbeddingsResponse {
+  repeated WordEmbeddingResponse items = 1;
 }
 
 message SentenceEmbeddingResponse {

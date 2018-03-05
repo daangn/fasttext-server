@@ -12,6 +12,7 @@ import grpc
 import click
 import numpy as np
 import fastText
+from gevent.pool import Pool
 from soyspacing.countbase import CountSpace
 
 import fasttextserver_pb2 as pb2
@@ -50,12 +51,23 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
     def WordEmbedding(self, request, context): 
         logging.debug('word_embedding request: %s, %s', request.sentence, request.version)
-        with self.LOCK:
-            sentence = request.sentence
-            if self._spacing_model:
-                sentence, _ = self._spacing_model.correct(request.sentence)
-            embeddings, words = self._get_embeddings(sentence, request.version)
+        return self._word_embedding(request.sentence, request.version)
+
+    def _word_embedding(self, sentence, version):
+        if self._spacing_model:
+            sentence, _ = self._spacing_model.correct(sentence)
+        embeddings, words = self._get_embeddings(sentence, version)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
+
+    def MultiWordEmbeddings(self, request, context): 
+        logging.debug('multi_word_embedding request: %s sentences, %s', len(request.sentences), request.version)
+
+        def word_embedding(sentence):
+            return self._word_embedding(sentence, request.version)
+
+        p = Pool(16)
+        items = p.map(word_embedding, request.sentences)
+        return pb2.MultiWordEmbeddingsResponse(items=items)
 
     def SentenceEmbedding(self, request, context):
         logging.debug('sentence_embedding request: %s, %s', request.sentence, request.version)

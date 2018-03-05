@@ -19,6 +19,11 @@ class FasttextStub(object):
         request_serializer=fasttextserver__pb2.SentenceRequest.SerializeToString,
         response_deserializer=fasttextserver__pb2.WordEmbeddingResponse.FromString,
         )
+    self.MultiWordEmbeddings = channel.unary_unary(
+        '/nlp.Fasttext/MultiWordEmbeddings',
+        request_serializer=fasttextserver__pb2.MultiSentencesRequest.SerializeToString,
+        response_deserializer=fasttextserver__pb2.MultiWordEmbeddingsResponse.FromString,
+        )
     self.SentenceEmbedding = channel.unary_unary(
         '/nlp.Fasttext/SentenceEmbedding',
         request_serializer=fasttextserver__pb2.SentenceRequest.SerializeToString,
@@ -41,6 +46,13 @@ class FasttextServicer(object):
   pass
 
   def WordEmbedding(self, request, context):
+    # missing associated documentation comment in .proto file
+    pass
+    context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+    context.set_details('Method not implemented!')
+    raise NotImplementedError('Method not implemented!')
+
+  def MultiWordEmbeddings(self, request, context):
     # missing associated documentation comment in .proto file
     pass
     context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -75,6 +87,11 @@ def add_FasttextServicer_to_server(servicer, server):
           servicer.WordEmbedding,
           request_deserializer=fasttextserver__pb2.SentenceRequest.FromString,
           response_serializer=fasttextserver__pb2.WordEmbeddingResponse.SerializeToString,
+      ),
+      'MultiWordEmbeddings': grpc.unary_unary_rpc_method_handler(
+          servicer.MultiWordEmbeddings,
+          request_deserializer=fasttextserver__pb2.MultiSentencesRequest.FromString,
+          response_serializer=fasttextserver__pb2.MultiWordEmbeddingsResponse.SerializeToString,
       ),
       'SentenceEmbedding': grpc.unary_unary_rpc_method_handler(
           servicer.SentenceEmbedding,
