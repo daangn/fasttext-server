@@ -17,6 +17,8 @@ ENV LANG C.UTF-8
 RUN apt-get update && apt-get install -y python3-dev cmake gcc
 RUN cd fastText && pip3 install .
 
+RUN pip3 install soyspacing
+
 RUN mkdir -p /app
 WORKDIR /app
 

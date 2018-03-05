@@ -11,4 +11,5 @@ docker run -d --name $CONTAINER_NAME -it -p $PORT:50051 -u `id -u $USER` \
   -v "$(pwd)/log":/app/log \
   daangn/fasttext-server server.py --log="log/${CONTAINER_NAME}.log" \
     --model_path models \
+    --spacing_model_path models/soyspacing \
     --debug

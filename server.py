@@ -12,6 +12,7 @@ import grpc
 import click
 import numpy as np
 import fastText
+from soyspacing.countbase import CountSpace
 
 import fasttextserver_pb2 as pb2
 import fasttextserver_pb2_grpc as pb2_grpc
@@ -26,7 +27,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
     TYPE_PREDICT = 'predict'
     LOCK = threading.Lock()
 
-    def __init__(self, model_path, default_version='default'):
+    def __init__(self, model_path, spacing_model_path=None, default_version='default'):
         self._model_path = model_path
         self._default_version = {self.TYPE_WORD: default_version,
                 self.TYPE_SENTENCE: default_version, self.TYPE_PREDICT: default_version}
@@ -39,10 +40,21 @@ class FasttextServer(pb2_grpc.FasttextServicer):
                 load_model(filepath, version)
                 logging.debug('%s model loaded, version: %s', model_type, version)
 
+        if spacing_model_path:
+            logging.debug('soyspacing model loading... from %s', spacing_model_path)
+            self._spacing_model = CountSpace()
+            self._spacing_model.load_model(spacing_model_path, json_format=False)
+            logging.debug('soyspacing model loaded')
+        else:
+            self._spacing_model = None
+
     def WordEmbedding(self, request, context): 
         logging.debug('word_embedding request: %s, %s', request.sentence, request.version)
         with self.LOCK:
-            embeddings, words = self._get_embeddings(request.sentence, request.version)
+            sentence = request.sentence
+            if self._spacing_model:
+                sentence, _ = self._spacing_model.correct(request.sentence)
+            embeddings, words = self._get_embeddings(sentence, request.version)
         return pb2.WordEmbeddingResponse(embeddings=embeddings, words=words)
 
     def SentenceEmbedding(self, request, context):
@@ -148,9 +160,10 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
 @click.command()
 @click.option('--model_path', default='models', help='model path')
+@click.option('--spacing_model_path', help='soyspacing model trained filepath')
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(model_path, log, debug):
+def serve(model_path, log, spacing_model_path, debug):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -164,7 +177,7 @@ def serve(model_path, log, debug):
 
     logging.info('server loading...')
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    fasttext_server = FasttextServer(model_path=model_path)
+    fasttext_server = FasttextServer(model_path=model_path, spacing_model_path=spacing_model_path)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
     server.start()
