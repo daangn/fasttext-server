@@ -38,13 +38,13 @@ class FasttextServer(pb2_grpc.FasttextServicer):
                 version = basename(filepath)[:-4]
                 load_model = getattr(self, '_load_%s_model' % model_type)
                 load_model(filepath, version)
-                logging.debug('%s model loaded, version: %s', model_type, version)
+                logging.info('%s model loaded, version: %s', model_type, version)
 
         if spacing_model_path:
-            logging.debug('soyspacing model loading... from %s', spacing_model_path)
+            logging.info('soyspacing model loading... from %s', spacing_model_path)
             self._spacing_model = CountSpace()
             self._spacing_model.load_model(spacing_model_path, json_format=False)
-            logging.debug('soyspacing model loaded')
+            logging.info('soyspacing model loaded')
         else:
             self._spacing_model = None
 
