@@ -31,6 +31,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._default_version = {self.TYPE_WORD: default_version,
                 self.TYPE_SENTENCE: default_version, self.TYPE_PREDICT: default_version}
         self._proc = {self.TYPE_WORD: {}, self.TYPE_SENTENCE: {}, self.TYPE_PREDICT: {}}
+        self._word_model = {}
         self._pool = Pool(16)
 
         for model_type in [self.TYPE_WORD, self.TYPE_SENTENCE, self.TYPE_PREDICT]:
@@ -105,8 +106,9 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         if pre_proc:
             pre_proc.kill()
 
-    def _load_word_model(self, model_filepath, version=None):
-        self._word_model = fastText.load_model(model_filepath)
+    def _load_word_model(self, model_filepath, version):
+        model = fastText.load_model(model_filepath)
+        self._word_model[version] = model
         self._get_embeddings('test', version) # pre loading
 
     def _load_sentence_model(self, model_filepath, version=None):
@@ -154,13 +156,14 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
     def _get_embeddings(self, sentence, version=None):
         sentence = sentence.strip()
+        version = version or self._default_version[self.TYPE_WORD]
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
         words = sentence.split()
         embeddings = []
 
         for word in words:
-            embedding = self._word_model.get_word_vector(word)
+            embedding = self._word_model[version].get_word_vector(word)
             embeddings.append(embedding)
         if embeddings:
             embeddings = np.concatenate(tuple(embeddings)).tolist()
