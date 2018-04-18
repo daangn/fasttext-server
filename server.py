@@ -11,6 +11,7 @@ import grpc
 import click
 import numpy as np
 import fastText
+import gevent
 from gevent.pool import Pool
 from soyspacing.countbase import CountSpace
 
@@ -33,21 +34,33 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._proc = {self.TYPE_WORD: {}, self.TYPE_SENTENCE: {}, self.TYPE_PREDICT: {}}
         self._word_model = {}
         self._pool = Pool(16)
+        threads = []
+
+        if spacing_model_path:
+            def load_spacing_model(spacing_model_path):
+                logging.info('soyspacing model loading... from %s', spacing_model_path)
+                start_time = time.time()
+                self._spacing_model = CountSpace()
+                self._spacing_model.load_model(spacing_model_path, json_format=False)
+                logging.info('soyspacing model loaded, %.2f s', (time.time() - start_time))
+            threads.append(gevent.spawn(load_spacing_model, spacing_model_path))
+        else:
+            self._spacing_model = None
+
+        def load_model_fn(model_type, filepath):
+            logging.info('%s model loading... from %s', model_type, filepath)
+            start_time = time.time()
+            version = basename(filepath)[:-4]
+            load_model = getattr(self, '_load_%s_model' % model_type)
+            load_model(filepath, version)
+            logging.info('%s model loaded, version: %s, %.2f s',
+                    model_type, version, (time.time() - start_time))
 
         for model_type in [self.TYPE_WORD, self.TYPE_SENTENCE, self.TYPE_PREDICT]:
             for filepath in glob('%s/%s/*.bin' % (self._model_path, model_type)):
-                version = basename(filepath)[:-4]
-                load_model = getattr(self, '_load_%s_model' % model_type)
-                load_model(filepath, version)
-                logging.info('%s model loaded, version: %s', model_type, version)
+                threads.append(gevent.spawn(load_model_fn, model_type, filepath))
 
-        if spacing_model_path:
-            logging.info('soyspacing model loading... from %s', spacing_model_path)
-            self._spacing_model = CountSpace()
-            self._spacing_model.load_model(spacing_model_path, json_format=False)
-            logging.info('soyspacing model loaded')
-        else:
-            self._spacing_model = None
+        gevent.joinall(threads)
 
     def WordEmbedding(self, request, context): 
         logging.debug('word_embedding request: %s, %s', request.sentence, request.version)
@@ -189,12 +202,13 @@ def serve(model_path, log, spacing_model_path, debug):
     root.addHandler(handler)
 
     logging.info('server loading...')
+    start_time = time.time()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     fasttext_server = FasttextServer(model_path=model_path, spacing_model_path=spacing_model_path)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
     server.start()
-    logging.info('server started')
+    logging.info('server started, loading time %.2f s' % (time.time() - start_time))
 
     # for docker heath check
     with open('/tmp/status', 'w') as f:
