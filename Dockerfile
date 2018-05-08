@@ -19,6 +19,7 @@ RUN cd fastText && pip3 install .
 
 RUN pip3 install soyspacing
 RUN pip3 install gevent
+RUN pip3 install awscli
 
 RUN mkdir -p /app
 WORKDIR /app

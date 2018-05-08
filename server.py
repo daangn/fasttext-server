@@ -1,11 +1,12 @@
 from glob import glob
 from os.path import basename
 from concurrent import futures
+from os import system
 import time
 import logging
 import sys
 import signal
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, call
 
 import grpc
 import click
@@ -185,11 +186,12 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
 
 @click.command()
-@click.option('--model_path', default='models', help='model path')
-@click.option('--spacing_model_path', help='soyspacing model trained filepath')
+@click.option('--model-path', default='models', help='model path')
+@click.option('--spacing-model-path', default='models/soyspacing', help='soyspacing model trained filepath')
+@click.option('--s3-model-path', help='log filepath')
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(model_path, log, spacing_model_path, debug):
+def serve(model_path, spacing_model_path, s3_model_path, log, debug):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -200,6 +202,16 @@ def serve(model_path, log, spacing_model_path, debug):
     level = debug and logging.DEBUG or logging.INFO
     root.setLevel(level)
     root.addHandler(handler)
+
+    if s3_model_path:
+        logging.info('s3 model fetching...')
+        start_time = time.time()
+        result = call('aws s3 cp %s %s --recursive' % (s3_model_path, model_path), shell=True)
+        if result == 255:
+            error = 's3 model fetch error, path: %s' % s3_model_path
+            logging.error(error)
+            raise Exception(error)
+        logging.info('s3 model fetched, %.2f s' % (time.time() - start_time))
 
     logging.info('server loading...')
     start_time = time.time()
