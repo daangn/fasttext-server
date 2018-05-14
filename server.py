@@ -34,6 +34,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
                 self.TYPE_SENTENCE: default_version, self.TYPE_PREDICT: default_version}
         self._proc = {self.TYPE_WORD: {}, self.TYPE_SENTENCE: {}, self.TYPE_PREDICT: {}}
         self._word_model = {}
+        self._predict_model = {}
         self._pool = Pool(16)
         threads = []
 
@@ -126,32 +127,24 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._get_embeddings('test', version) # pre loading
 
     def _load_sentence_model(self, model_filepath, version=None):
-        logging.debug('sentence model filepath: %s', model_filepath)
         proc = Popen(["fasttext", 'print-sentence-vectors', model_filepath],
                 stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
         self._set_process(proc, self.TYPE_SENTENCE, version)
         self._get_sentence_embeddings('test', version) # pre loading
 
-    def _load_predict_model(self, model_filepath, version=None):
-        logging.debug('predict model filepath: %s', model_filepath)
-        proc = Popen(["fasttext", 'predict-prob', model_filepath, '-', '1000'],
-                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self._set_process(proc, self.TYPE_PREDICT, version)
+    def _load_predict_model(self, model_filepath, version):
+        model = fastText.load_model(model_filepath)
+        self._predict_model[version] = model
         self._predict('test', version) # pre loading
 
     def _predict(self, sentence, version=None):
+        version = version or self._default_version[self.TYPE_PREDICT]
         sentence = sentence.strip()
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
 
-        proc = self._get_process(self.TYPE_PREDICT, version)
-        if not proc:
-            raise Exception('no process for version %s, type %s' % (version, self.TYPE_PREDICT))
-        proc.stdin.write("%s\n" % sentence)
-        line = proc.stdout.readline()
-        tokens = line.rstrip().split()
-        labels = [x[9:] for x in tokens[::2]]
-        probs = [float(x) for x in tokens[1::2]]
+        labels, probs = self._predict_model[version].predict(sentence, k=100)
+        labels = [label[9:] for label in labels]
         return labels, probs
 
     def _get_sentence_embeddings(self, sentence, version=None):
