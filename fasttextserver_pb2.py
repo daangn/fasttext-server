@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='fasttextserver.proto',
   package='nlp',
   syntax='proto3',
-  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"E\n\x0fSentenceRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\"L\n\x15MultiSentencesRequest\x12\x11\n\tsentences\x18\x01 \x03(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t\"H\n\x1bMultiWordEmbeddingsResponse\x12)\n\x05items\x18\x01 \x03(\x0b\x32\x1a.nlp.WordEmbeddingResponse\"/\n\x19SentenceEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\"4\n\rReloadRequest\x12\x12\n\nmodel_type\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07message\x18\x01 \x01(\t\"0\n\x0fPredictResponse\x12\x0e\n\x06labels\x18\x01 \x03(\t\x12\r\n\x05probs\x18\x02 \x03(\x02\x32\xdb\x02\n\x08\x46\x61sttext\x12\x43\n\rWordEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x12U\n\x13MultiWordEmbeddings\x12\x1a.nlp.MultiSentencesRequest\x1a .nlp.MultiWordEmbeddingsResponse\"\x00\x12K\n\x11SentenceEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1e.nlp.SentenceEmbeddingResponse\"\x00\x12\x37\n\x07Predict\x12\x14.nlp.SentenceRequest\x1a\x14.nlp.PredictResponse\"\x00\x12-\n\x06Reload\x12\x12.nlp.ReloadRequest\x1a\r.nlp.Response\"\x00\x62\x06proto3')
+  serialized_pb=_b('\n\x14\x66\x61sttextserver.proto\x12\x03nlp\"E\n\x0fSentenceRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\"L\n\x15MultiSentencesRequest\x12\x11\n\tsentences\x18\x01 \x03(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\":\n\x15WordEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\x12\r\n\x05words\x18\x02 \x03(\t\"H\n\x1bMultiWordEmbeddingsResponse\x12)\n\x05items\x18\x01 \x03(\x0b\x32\x1a.nlp.WordEmbeddingResponse\"/\n\x19SentenceEmbeddingResponse\x12\x12\n\nembeddings\x18\x01 \x03(\x02\"F\n\rReloadRequest\x12\x12\n\nmodel_type\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x10\n\x08\x66ilepath\x18\x03 \x01(\t\"\x1b\n\x08Response\x12\x0f\n\x07message\x18\x01 \x01(\t\"S\n\x0ePredictRequest\x12\x10\n\x08sentence\x18\x01 \x01(\t\x12\x0f\n\x07version\x18\x02 \x01(\t\x12\x0f\n\x07spacing\x18\x03 \x01(\x08\x12\r\n\x05limit\x18\x04 \x01(\x05\"0\n\x0fPredictResponse\x12\x0e\n\x06labels\x18\x01 \x03(\t\x12\r\n\x05probs\x18\x02 \x03(\x02\x32\xda\x02\n\x08\x46\x61sttext\x12\x43\n\rWordEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1a.nlp.WordEmbeddingResponse\"\x00\x12U\n\x13MultiWordEmbeddings\x12\x1a.nlp.MultiSentencesRequest\x1a .nlp.MultiWordEmbeddingsResponse\"\x00\x12K\n\x11SentenceEmbedding\x12\x14.nlp.SentenceRequest\x1a\x1e.nlp.SentenceEmbeddingResponse\"\x00\x12\x36\n\x07Predict\x12\x13.nlp.PredictRequest\x1a\x14.nlp.PredictResponse\"\x00\x12-\n\x06Reload\x12\x12.nlp.ReloadRequest\x1a\r.nlp.Response\"\x00\x62\x06proto3')
 )
 
 
@@ -236,6 +236,13 @@ _RELOADREQUEST = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
+    _descriptor.FieldDescriptor(
+      name='filepath', full_name='nlp.ReloadRequest.filepath', index=2,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
   ],
   extensions=[
   ],
@@ -249,7 +256,7 @@ _RELOADREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=361,
-  serialized_end=413,
+  serialized_end=431,
 )
 
 
@@ -279,8 +286,60 @@ _RESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=415,
-  serialized_end=442,
+  serialized_start=433,
+  serialized_end=460,
+)
+
+
+_PREDICTREQUEST = _descriptor.Descriptor(
+  name='PredictRequest',
+  full_name='nlp.PredictRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='sentence', full_name='nlp.PredictRequest.sentence', index=0,
+      number=1, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='version', full_name='nlp.PredictRequest.version', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='spacing', full_name='nlp.PredictRequest.spacing', index=2,
+      number=3, type=8, cpp_type=7, label=1,
+      has_default_value=False, default_value=False,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='limit', full_name='nlp.PredictRequest.limit', index=3,
+      number=4, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=462,
+  serialized_end=545,
 )
 
 
@@ -317,8 +376,8 @@ _PREDICTRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=444,
-  serialized_end=492,
+  serialized_start=547,
+  serialized_end=595,
 )
 
 _MULTIWORDEMBEDDINGSRESPONSE.fields_by_name['items'].message_type = _WORDEMBEDDINGRESPONSE
@@ -329,6 +388,7 @@ DESCRIPTOR.message_types_by_name['MultiWordEmbeddingsResponse'] = _MULTIWORDEMBE
 DESCRIPTOR.message_types_by_name['SentenceEmbeddingResponse'] = _SENTENCEEMBEDDINGRESPONSE
 DESCRIPTOR.message_types_by_name['ReloadRequest'] = _RELOADREQUEST
 DESCRIPTOR.message_types_by_name['Response'] = _RESPONSE
+DESCRIPTOR.message_types_by_name['PredictRequest'] = _PREDICTREQUEST
 DESCRIPTOR.message_types_by_name['PredictResponse'] = _PREDICTRESPONSE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -381,6 +441,13 @@ Response = _reflection.GeneratedProtocolMessageType('Response', (_message.Messag
   ))
 _sym_db.RegisterMessage(Response)
 
+PredictRequest = _reflection.GeneratedProtocolMessageType('PredictRequest', (_message.Message,), dict(
+  DESCRIPTOR = _PREDICTREQUEST,
+  __module__ = 'fasttextserver_pb2'
+  # @@protoc_insertion_point(class_scope:nlp.PredictRequest)
+  ))
+_sym_db.RegisterMessage(PredictRequest)
+
 PredictResponse = _reflection.GeneratedProtocolMessageType('PredictResponse', (_message.Message,), dict(
   DESCRIPTOR = _PREDICTRESPONSE,
   __module__ = 'fasttextserver_pb2'
@@ -426,7 +493,7 @@ try:
           )
       self.Predict = channel.unary_unary(
           '/nlp.Fasttext/Predict',
-          request_serializer=SentenceRequest.SerializeToString,
+          request_serializer=PredictRequest.SerializeToString,
           response_deserializer=PredictResponse.FromString,
           )
       self.Reload = channel.unary_unary(
@@ -495,7 +562,7 @@ try:
         ),
         'Predict': grpc.unary_unary_rpc_method_handler(
             servicer.Predict,
-            request_deserializer=SentenceRequest.FromString,
+            request_deserializer=PredictRequest.FromString,
             response_serializer=PredictResponse.SerializeToString,
         ),
         'Reload': grpc.unary_unary_rpc_method_handler(
@@ -582,7 +649,7 @@ try:
     generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
     request_deserializers = {
       ('nlp.Fasttext', 'MultiWordEmbeddings'): MultiSentencesRequest.FromString,
-      ('nlp.Fasttext', 'Predict'): SentenceRequest.FromString,
+      ('nlp.Fasttext', 'Predict'): PredictRequest.FromString,
       ('nlp.Fasttext', 'Reload'): ReloadRequest.FromString,
       ('nlp.Fasttext', 'SentenceEmbedding'): SentenceRequest.FromString,
       ('nlp.Fasttext', 'WordEmbedding'): SentenceRequest.FromString,
@@ -613,7 +680,7 @@ try:
     generated only to ease transition from grpcio<0.15.0 to grpcio>=0.15.0"""
     request_serializers = {
       ('nlp.Fasttext', 'MultiWordEmbeddings'): MultiSentencesRequest.SerializeToString,
-      ('nlp.Fasttext', 'Predict'): SentenceRequest.SerializeToString,
+      ('nlp.Fasttext', 'Predict'): PredictRequest.SerializeToString,
       ('nlp.Fasttext', 'Reload'): ReloadRequest.SerializeToString,
       ('nlp.Fasttext', 'SentenceEmbedding'): SentenceRequest.SerializeToString,
       ('nlp.Fasttext', 'WordEmbedding'): SentenceRequest.SerializeToString,

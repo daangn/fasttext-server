@@ -31,7 +31,7 @@ class FasttextStub(object):
         )
     self.Predict = channel.unary_unary(
         '/nlp.Fasttext/Predict',
-        request_serializer=fasttextserver__pb2.SentenceRequest.SerializeToString,
+        request_serializer=fasttextserver__pb2.PredictRequest.SerializeToString,
         response_deserializer=fasttextserver__pb2.PredictResponse.FromString,
         )
     self.Reload = channel.unary_unary(
@@ -100,7 +100,7 @@ def add_FasttextServicer_to_server(servicer, server):
       ),
       'Predict': grpc.unary_unary_rpc_method_handler(
           servicer.Predict,
-          request_deserializer=fasttextserver__pb2.SentenceRequest.FromString,
+          request_deserializer=fasttextserver__pb2.PredictRequest.FromString,
           response_serializer=fasttextserver__pb2.PredictResponse.SerializeToString,
       ),
       'Reload': grpc.unary_unary_rpc_method_handler(

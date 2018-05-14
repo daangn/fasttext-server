@@ -90,15 +90,18 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 
     def Predict(self, request, context):
         logging.debug('predict request: %s, %s', request.sentence, request.version)
-        labels, probs = self._predict(request.sentence, request.version)
+        labels, probs = self._predict(request.sentence, request.version, request.limit)
         return pb2.PredictResponse(labels=labels, probs=probs)
 
     def Reload(self, request, context): 
-        logging.debug('reload request: %s, %s', \
-                request.model_type, request.version)
+        logging.debug('reload request: %s, %s, %s', \
+                request.model_type, request.version, request.filepath)
         model_type = request.model_type
         version = request.version or self._default_version[model_type]
         model_filepath = '%s/%s/%s.bin' % (self._model_path, model_type, version)
+        if request.filepath and request.filepath.startswith('s3://'):
+            call('aws s3 cp %s %s' % (request.filepath, model_filepath), shell=True)
+
         load_model = getattr(self, '_load_%s_model' % request.model_type)
         load_model(model_filepath, request.version)
         return pb2.Response(message='Reloaded: %s, %s' % \
@@ -137,13 +140,16 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._predict_model[version] = model
         self._predict('test', version) # pre loading
 
-    def _predict(self, sentence, version=None):
+    def _predict(self, sentence, version=None, k=10):
         version = version or self._default_version[self.TYPE_PREDICT]
         sentence = sentence.strip()
+        k = k or 10
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
+        if k < 1:
+            raise ValueError('k(%d) must be greater than zero' % k)
 
-        labels, probs = self._predict_model[version].predict(sentence, k=100)
+        labels, probs = self._predict_model[version].predict(sentence, k=k)
         labels = [label[9:] for label in labels]
         return labels, probs
 

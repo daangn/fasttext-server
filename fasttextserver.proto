@@ -6,7 +6,7 @@ service Fasttext {
   rpc WordEmbedding (SentenceRequest) returns (WordEmbeddingResponse) {}
   rpc MultiWordEmbeddings (MultiSentencesRequest) returns (MultiWordEmbeddingsResponse) {}
   rpc SentenceEmbedding (SentenceRequest) returns (SentenceEmbeddingResponse) {}
-  rpc Predict (SentenceRequest) returns (PredictResponse) {}
+  rpc Predict (PredictRequest) returns (PredictResponse) {}
   rpc Reload (ReloadRequest) returns (Response) {}
 }
 
@@ -38,10 +38,18 @@ message SentenceEmbeddingResponse {
 message ReloadRequest {
   string model_type = 1;
   string version = 2;
+  string filepath = 3;
 }
 
 message Response {
   string message = 1;
+}
+
+message PredictRequest {
+  string sentence = 1;
+  string version = 2;
+  bool spacing = 3;
+  int32 limit = 4;
 }
 
 message PredictResponse {
