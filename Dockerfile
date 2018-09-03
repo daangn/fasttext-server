@@ -2,11 +2,12 @@ FROM daangn/fasttext
 
 RUN apt-get update && apt-get install python3 -y
 
+RUN apt-get install -q -y wget
 RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && rm get-pip.py
 RUN python3 -m pip install --upgrade pip
 
 # grpc
-ENV GRPC_PYTHON_VERSION 1.6.0
+ENV GRPC_PYTHON_VERSION 1.14.0
 RUN pip3 install grpcio==${GRPC_PYTHON_VERSION} grpcio-tools==${GRPC_PYTHON_VERSION}
 RUN pip3 install click
 
