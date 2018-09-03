@@ -6,7 +6,7 @@ import time
 import logging
 import sys
 import signal
-from subprocess import Popen, PIPE, call
+from subprocess import call
 
 import grpc
 import click
@@ -32,9 +32,9 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._model_path = model_path
         self._default_version = {self.TYPE_WORD: default_version,
                 self.TYPE_SENTENCE: default_version, self.TYPE_PREDICT: default_version}
-        self._proc = {self.TYPE_WORD: {}, self.TYPE_SENTENCE: {}, self.TYPE_PREDICT: {}}
         self._word_model = {}
         self._predict_model = {}
+        self._sentence_model = {}
         self._pool = Pool(16)
         threads = []
 
@@ -108,21 +108,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
                 (request.model_type, request.version))
 
     def stop(self):
-        for model_type in self._proc:
-            map(lambda x: x.kill(), self._proc[model_type].values())
-
-    def _get_process(self, model_type, version=None):
-        version = version or self._default_version[model_type]
-        if version not in self._proc[model_type]:
-            return None
-        return self._proc[model_type][version]
-
-    def _set_process(self, proc, model_type, version=None):
-        version = version or self._default_version[model_type]
-        pre_proc = self._get_process(model_type, version)
-        self._proc[model_type][version] = proc
-        if pre_proc:
-            pre_proc.kill()
+        pass
 
     def _load_word_model(self, model_filepath, version):
         model = fastText.load_model(model_filepath)
@@ -130,9 +116,8 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._get_embeddings('test', version) # pre loading
 
     def _load_sentence_model(self, model_filepath, version=None):
-        proc = Popen(["fasttext", 'print-sentence-vectors', model_filepath],
-                stdout=PIPE, stdin=PIPE, bufsize=1, universal_newlines=True)
-        self._set_process(proc, self.TYPE_SENTENCE, version)
+        model = fastText.load_model(model_filepath)
+        self._sentence_model[version] = model
         self._get_sentence_embeddings('test', version) # pre loading
 
     def _load_predict_model(self, model_filepath, version):
@@ -158,14 +143,8 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         if sentence.find('\n') > -1:
             raise ValueError('sentence must not contain new line(\\n)')
 
-        proc = self._get_process(self.TYPE_SENTENCE, version)
-        if not proc:
-            raise Exception('no process for version %s, type %s' % (version, self.TYPE_SENTENCE))
-        proc.stdin.write("%s\n" % sentence)
-        line = proc.stdout.readline()
-        tokens = line.rstrip().split()
-        embedding = [float(x) for x in tokens]
-        return embedding
+        version = version or self._default_version[self.TYPE_SENTENCE]
+        return self._sentence_model[version].get_sentence_vector(sentence)
 
     def _get_embeddings(self, sentence, version=None):
         sentence = sentence.strip()
