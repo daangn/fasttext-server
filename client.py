@@ -57,10 +57,22 @@ def sent_emb(host, sentence, version):
         response = stub.SentenceEmbedding(request)
         print("embeddings: %s" % response.embeddings)
 
+@click.command()
+@click.argument('sentence')
+@click.option('--host', default='localhost:50051', help='host:port')
+@click.option('-v', '--version', help='model version')
+def predict(host, sentence, version):
+    with grpc.insecure_channel(host) as channel:
+        stub = pb2_grpc.FasttextStub(channel)
+        request = pb2.PredictRequest(sentence=sentence, version=version, limit=10)
+        response = stub.Predict(request)
+        print("predict: %s, %s" % (response.labels, response.probs))
+
 cli.add_command(word_emb)
 cli.add_command(multi_word_emb)
 cli.add_command(restore)
 cli.add_command(sent_emb)
+cli.add_command(predict)
 
 if __name__ == '__main__':
   cli()
