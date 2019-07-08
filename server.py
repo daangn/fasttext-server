@@ -11,7 +11,7 @@ from subprocess import call
 import grpc
 import click
 import numpy as np
-import fastText
+import fasttext
 import gevent
 from gevent.pool import Pool
 from soyspacing.countbase import CountSpace
@@ -111,17 +111,17 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         pass
 
     def _load_word_model(self, model_filepath, version):
-        model = fastText.load_model(model_filepath)
+        model = fasttext.load_model(model_filepath)
         self._word_model[version] = model
         self._get_embeddings('test', version) # pre loading
 
     def _load_sentence_model(self, model_filepath, version=None):
-        model = fastText.load_model(model_filepath)
+        model = fasttext.load_model(model_filepath)
         self._sentence_model[version] = model
         self._get_sentence_embeddings('test', version) # pre loading
 
     def _load_predict_model(self, model_filepath, version):
-        model = fastText.load_model(model_filepath)
+        model = fasttext.load_model(model_filepath)
         self._predict_model[version] = model
         self._predict('test', version) # pre loading
 

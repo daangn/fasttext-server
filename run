@@ -3,11 +3,16 @@ source config.sh
 echo "container_name: $CONTAINER_NAME"
 echo "port: $PORT"
 
-mkdir -p models
+MODEL=models2
+
+mkdir -p $MODEL
 mkdir -p log
 
-docker run -d --name $CONTAINER_NAME -it -p $PORT:50051 -u `id -u $USER` \
-  -v "$(pwd)/models":/app/models \
-  -v "$(pwd)/log":/app/log \
+docker run --rm -d --name $CONTAINER_NAME -it -p $PORT:50051 \
+  -v "$(pwd)":/app \
+  --volumes-from aws-config \
   daangn/fasttext-server server.py --log="log/${CONTAINER_NAME}.log" \
-    --debug
+    --debug --spacing-model-path='' --model-path $MODEL
+    #--s3-model-path s3://daangn/ml/fasttext-server/models \
+  #-v "$(pwd)/log":/app/log \
+  #-v "$(pwd)/$MODEL":/app/models \

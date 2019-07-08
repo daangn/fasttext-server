@@ -1,31 +1,26 @@
-FROM daangn/fasttext
+FROM python:3.7-slim
 
-RUN apt-get update && apt-get install python3 -y
+# fasttext python library
+RUN apt-get -q update && apt-get -q install -y wget
+RUN wget -q https://github.com/facebookresearch/fastText/archive/v0.9.1.tar.gz && \
+      tar xfz v0.9.1.tar.gz && rm v0.9.1.tar.gz && mv fastText-0.9.1 fastText
+RUN pip install --upgrade pip
+RUN apt-get -q install -y build-essential
+RUN cd fastText && pip install .
 
-RUN apt-get install -q -y wget
-RUN wget https://bootstrap.pypa.io/get-pip.py && python3 get-pip.py && rm get-pip.py
-RUN python3 -m pip install --upgrade pip
-
-# grpc
-ENV GRPC_PYTHON_VERSION 1.14.0
-RUN pip3 install grpcio==${GRPC_PYTHON_VERSION} grpcio-tools==${GRPC_PYTHON_VERSION}
-RUN pip3 install click
+RUN pip install grpcio grpcio-tools
+RUN pip install click
 
 # for click library
 ENV LC_ALL C.UTF-8
 ENV LANG C.UTF-8
 
-RUN apt-get update && apt-get install -y python3-dev cmake gcc
-RUN cd fastText && pip3 install .
-
-RUN pip3 install soyspacing
-RUN pip3 install gevent
-RUN pip3 install awscli
+RUN pip install soyspacing gevent awscli
 
 RUN mkdir -p /app
 WORKDIR /app
 
-ENTRYPOINT ["python3"]
+ENTRYPOINT ["python"]
 CMD ["server.py"]
 
 HEALTHCHECK --interval=3s --timeout=2s \
