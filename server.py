@@ -167,9 +167,10 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 @click.option('--model-path', default='models', help='model path')
 @click.option('--spacing-model-path', default='models/soyspacing', help='soyspacing model trained filepath')
 @click.option('--s3-model-path', help='log filepath')
+@click.option('--max-workers', default=1)
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(model_path, spacing_model_path, s3_model_path, log, debug):
+def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -193,7 +194,7 @@ def serve(model_path, spacing_model_path, s3_model_path, log, debug):
 
     logging.info('server loading...')
     start_time = time.time()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
     fasttext_server = FasttextServer(model_path=model_path, spacing_model_path=spacing_model_path)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
