@@ -2,11 +2,18 @@ FROM python:3.7-slim
 
 # fasttext python library
 RUN apt-get -q update && apt-get -q install -y wget
-RUN wget -q https://github.com/facebookresearch/fastText/archive/v0.9.1.tar.gz && \
-      tar xfz v0.9.1.tar.gz && rm v0.9.1.tar.gz && mv fastText-0.9.1 fastText
+RUN apt-get install -y unzip
 RUN pip install --upgrade pip
 RUN apt-get -q install -y build-essential
-RUN cd fastText && pip install .
+
+#RUN wget -q https://github.com/facebookresearch/fastText/archive/v0.9.1.tar.gz && \
+#      tar xfz v0.9.1.tar.gz && rm v0.9.1.tar.gz && mv fastText-0.9.1 fastText
+#RUN cd fastText && pip install .
+
+# for memory bug fix version
+RUN wget https://github.com/facebookresearch/fastText/archive/40a77442a756ab160ae3465b26322f6e480405d9.zip -O fasttext.zip
+RUN unzip fasttext.zip
+RUN cd fastText-40a77442a756ab160ae3465b26322f6e480405d9 && pip install .
 
 RUN pip install grpcio grpcio-tools
 RUN pip install click
