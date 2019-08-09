@@ -6,6 +6,7 @@ import time
 import logging
 import sys
 import signal
+import tracemalloc
 from subprocess import call
 
 import grpc
@@ -19,7 +20,10 @@ from soyspacing.countbase import CountSpace
 import fasttextserver_pb2 as pb2
 import fasttextserver_pb2_grpc as pb2_grpc
 
-_ONE_DAY_IN_SECONDS = 60 * 60 * 24
+import trace
+
+#_ONE_DAY_IN_SECONDS = 60 * 60 * 24
+_ONE_DAY_IN_SECONDS = 60 * 10 # for tracing mem alloc
 
 
 class FasttextServer(pb2_grpc.FasttextServicer):
@@ -210,8 +214,13 @@ def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug
     signal.signal(signal.SIGINT, stop_serve)
     signal.signal(signal.SIGTERM, stop_serve)
 
+    snapshot1 = tracemalloc.take_snapshot()
     try:
         while True:
+            snapshot = tracemalloc.take_snapshot()
+            top_stats = snapshot.compare_to(snapshot1, 'lineno')
+            trace.log_stats(top_stats)
+
             time.sleep(_ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
         server.stop(0)
@@ -219,4 +228,5 @@ def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug
         logging.info('server stopped')
 
 if __name__ == '__main__':
+    tracemalloc.start()
     serve()
