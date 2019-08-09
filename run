@@ -10,7 +10,9 @@ mkdir -p log
 
 docker run --rm -d --name $CONTAINER_NAME -it -p $PORT:50051 \
   -v "$(pwd)":/app \
-  --volumes-from aws-config \
+  -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+  -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+  -e AWS_REGION=$AWS_REGION \
   daangn/fasttext-server:v20190808 server.py --log="log/${CONTAINER_NAME}.log" \
     --debug --spacing-model-path='' --model-path $MODEL
     #--s3-model-path s3://daangn/ml/fasttext-server/models \
