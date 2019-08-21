@@ -24,6 +24,9 @@ ENV LANG C.UTF-8
 
 RUN pip install soyspacing gevent awscli
 
+ENV GRPC_VERSION=1.23.0
+RUN pip install grpcio==$GRPC_VERSION grpcio-tools==$GRPC_VERSION
+
 RUN mkdir -p /app
 WORKDIR /app
 
