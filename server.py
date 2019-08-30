@@ -39,7 +39,7 @@ class FasttextServer(pb2_grpc.FasttextServicer):
         self._word_model = {}
         self._predict_model = {}
         self._sentence_model = {}
-        self._pool = Pool(16)
+        self._pool = Pool(4)
         threads = []
 
         if spacing_model_path:
@@ -214,12 +214,12 @@ def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug
     signal.signal(signal.SIGINT, stop_serve)
     signal.signal(signal.SIGTERM, stop_serve)
 
-    snapshot1 = tracemalloc.take_snapshot()
+    #snapshot1 = tracemalloc.take_snapshot()
     try:
         while True:
-            snapshot = tracemalloc.take_snapshot()
-            top_stats = snapshot.compare_to(snapshot1, 'lineno')
-            trace.log_stats(top_stats)
+            #snapshot = tracemalloc.take_snapshot()
+            #top_stats = snapshot.compare_to(snapshot1, 'lineno')
+            #trace.log_stats(top_stats)
 
             time.sleep(_ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
@@ -228,5 +228,5 @@ def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug
         logging.info('server stopped')
 
 if __name__ == '__main__':
-    tracemalloc.start()
+    #tracemalloc.start()
     serve()
