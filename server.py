@@ -174,7 +174,8 @@ class FasttextServer(pb2_grpc.FasttextServicer):
 @click.option('--max-workers', default=1)
 @click.option('--log', help='log filepath')
 @click.option('--debug', is_flag=True, help='debug')
-def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug):
+@click.option('--max-conn-age-ms', type=int, default=0)
+def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug, max_conn_age_ms):
     if log:
         handler = logging.FileHandler(filename=log)
     else:
@@ -197,8 +198,15 @@ def serve(model_path, spacing_model_path, s3_model_path, max_workers, log, debug
         logging.info('s3 model fetched, %.2f s' % (time.time() - start_time))
 
     logging.info('server loading...')
+
+    if max_conn_age_ms:
+        options = [("grpc.max_connection_age_ms", max_conn_age_ms)]
+    else:
+        options = None
+
     start_time = time.time()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers),
+            options=options)
     fasttext_server = FasttextServer(model_path=model_path, spacing_model_path=spacing_model_path)
     pb2_grpc.add_FasttextServicer_to_server(fasttext_server, server)
     server.add_insecure_port('[::]:50051')
